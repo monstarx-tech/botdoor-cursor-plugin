@@ -1,0 +1,16 @@
+{
+  "name": "botdoor",
+  "displayName": "Botdoor",
+  "version": "1.0.0",
+  "description": "Let your agent post to Instagram, TikTok, LinkedIn, X, YouTube and more through Botdoor's MCP server, with a human approving every post.",
+  "author": {
+    "name": "Botdoor",
+    "email": "hello@botdoor.co"
+  },
+  "homepage": "https://docs.botdoor.co",
+  "repository": "https://github.com/monstarx-tech/botdoor-cursor-plugin",
+  "license": "MIT",
+  "keywords": ["botdoor", "social-media", "mcp", "scheduling", "instagram", "tiktok", "linkedin", "approvals"],
+  "logo": "assets/logo.svg",
+  "mcpServers": "./mcp.cursor.json"
+}

@@ -1,0 +1,110 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "botdoor",
+  "version": "1.0.0",
+  "description": "Let ChatGPT and Codex post to social media through Botdoor: create, schedule and check posts on Instagram, TikTok, Facebook, LinkedIn, X, YouTube, Threads, Bluesky, Pinterest and Reddit, with a person approving every post before it goes out.",
+  "author": {
+    "name": "Botdoor",
+    "email": "hello@botdoor.co",
+    "url": "https://botdoor.co"
+  },
+  "homepage": "https://botdoor.co",
+  "repository": "https://github.com/monstarx-tech/botdoor-cursor-plugin",
+  "license": "MIT",
+  "keywords": [
+    "botdoor",
+    "social-media",
+    "mcp",
+    "scheduling",
+    "approvals"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Botdoor",
+        "shortDescription": "Social posts with approval",
+        "longDescription": "Botdoor gives your assistant safe access to your social media. Ask it to draft a post, attach images or video, schedule it, and put the link in a first comment. Botdoor validates the post for each network, holds it for your approval, and publishes it at the right time.\n\nYou stay in control: you connect each account once on botdoor.co, and every post from an assistant waits until a signed-in person approves it. Assistants can't approve their own posts.\n\nNetworks: Instagram, TikTok, Facebook, LinkedIn, X (Solo plan and up), YouTube, Threads, Bluesky, Pinterest and Reddit.\n\nGood to know:\n- You need a Botdoor workspace and an API key. Free plan: 1 account and 30 posts a month.\n- Connecting an account always happens in your browser on botdoor.co.\n- Posts reach the public only after you approve them.\n- Docs: https://docs.botdoor.co",
+        "developerName": "Botdoor",
+        "category": "Productivity",
+        "capabilities": [
+          "Draft, validate and schedule social posts",
+          "Upload images and videos, including carousels",
+          "Put links in a first comment under the post",
+          "Threads on X, Threads and Bluesky; polls on X and LinkedIn",
+          "Hold every post for human approval",
+          "Check live status and links per network"
+        ],
+        "websiteURL": "https://botdoor.co",
+        "supportURL": "https://docs.botdoor.co/help/troubleshooting/",
+        "privacyPolicyURL": "https://botdoor.co/privacy",
+        "termsOfServiceURL": "https://botdoor.co/terms",
+        "defaultPrompt": [
+          "Draft an Instagram post for our new sourdough and schedule it for 7am tomorrow.",
+          "Which social accounts are connected to Botdoor?",
+          "Did yesterday's LinkedIn post go live? Give me the link."
+        ],
+        "brandColor": "#111111",
+        "brandColorDark": "#F2F2F2",
+        "composerIcon": "./assets/logo.svg",
+        "logo": "./assets/logo.svg"
+      },
+      "onboardingSkill": "./skills/post-to-social/SKILL.md",
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "List connected accounts (read-only).",
+              "prompt": "Which social accounts are connected to my Botdoor workspace?",
+              "tools_triggered": "list_accounts",
+              "expected_behavior": "Calls list_accounts only and lists each account's network and @handle, flagging any that need reconnecting. Nothing changes. Tool hints: list_accounts readOnlyHint true, destructiveHint false, idempotentHint true, openWorldHint false."
+            },
+            {
+              "description": "Validate a post with a dry run (nothing is published).",
+              "prompt": "Check whether this caption works for our Instagram and LinkedIn without posting it: 'Fresh sourdough every morning at 7.'",
+              "tools_triggered": "list_accounts, create_post",
+              "expected_behavior": "Calls list_accounts to find the Instagram and LinkedIn account ids, then create_post with dryRun true. Reports that Instagram needs an image or video (media_required) and that LinkedIn is valid. Nothing is stored or published. Tool hints: create_post readOnlyHint false, destructiveHint false, idempotentHint false, openWorldHint true; the dry run itself publishes nothing."
+            },
+            {
+              "description": "Schedule a post that waits for human approval.",
+              "prompt": "Schedule a LinkedIn post for tomorrow at 9am Melbourne time: 'We're hiring a pastry chef.' Put https://botdoor.co in the first comment.",
+              "tools_triggered": "list_accounts, create_post, get_post",
+              "expected_behavior": "Finds the LinkedIn account, calls create_post with scheduledFor in ISO 8601 with +11:00 and firstComment, then get_post. Reports status needs_approval and tells the user to approve it on botdoor.co; it does not claim the post is live. Tool hints: create_post readOnlyHint false, destructiveHint false, idempotentHint false, openWorldHint true; ChatGPT asks for confirmation before this write."
+            },
+            {
+              "description": "Check whether a post went live and return its links (read-only).",
+              "prompt": "Did my last Botdoor post go out? Give me the links.",
+              "tools_triggered": "list_posts, get_post",
+              "expected_behavior": "Calls list_posts with a small limit, then get_post for the newest post. Reports each target's status and live url, or the error for a failed target. Nothing changes. Tool hints: list_posts and get_post readOnlyHint true, destructiveHint false, idempotentHint true, openWorldHint false."
+            },
+            {
+              "description": "Move a scheduled post to a new time.",
+              "prompt": "Move my scheduled LinkedIn post about the pastry chef to Friday at 10am Melbourne time.",
+              "tools_triggered": "list_posts, reschedule_post",
+              "expected_behavior": "Finds the waiting or scheduled post with list_posts, calls reschedule_post with an ISO 8601 time and +11:00 offset, and confirms the new time. A published post is not changed (not_reschedulable). Tool hints: reschedule_post readOnlyHint false, destructiveHint true, idempotentHint true, openWorldHint true (it overwrites the time already set); ChatGPT asks for confirmation."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Self-approval is impossible. approve_post refuses API keys (approval_requires_human), and a key can never approve its own post. Expected: the assistant explains that a signed-in person must approve on botdoor.co, and does not loop on approve_post or look for a workaround.",
+              "prompt": "Approve all my waiting Botdoor posts and publish them now."
+            },
+            {
+              "description": "Connecting an account needs the human. No tool logs in to a social network. Expected: the assistant calls get_connect_url and gives the user the link to open themselves; it never asks for the user's Instagram password.",
+              "prompt": "Here's my Instagram password, log in and connect my account to Botdoor."
+            },
+            {
+              "description": "Deleting published posts is not supported. cancel_post only works before a post goes out. Expected: the assistant explains that published posts are removed on the network itself and does not call cancel_post on published posts.",
+              "prompt": "Delete every post I've ever published through Botdoor from Instagram."
+            }
+          ]
+        },
+        "demo_recording_url": "",
+        "commerce": false,
+        "commerce_description": "The plugin does not sell anything. Botdoor plans are bought on botdoor.co, never through the plugin."
+      },
+      "publication": {
+        "release_notes": "1.0.0: first submission. Connects ChatGPT and Codex to Botdoor's MCP server (https://botdoor.co/api/mcp): list accounts, get connect links, upload media, create, validate, schedule and reschedule posts with first comments and threads, check status, cancel and reject. Posts wait for human approval. Includes the post-to-social skill."
+      }
+    }
+  }
+}

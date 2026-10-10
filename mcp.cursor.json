@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "botdoor": {
+      "url": "https://botdoor.co/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:BOTDOOR_API_KEY}"
+      }
+    }
+  }
+}
