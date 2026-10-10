@@ -9,8 +9,8 @@ Let your agent post to Instagram, TikTok, Facebook, LinkedIn, X, YouTube, Thread
 ## Install in Cursor
 
 1. Install the plugin (Cursor Marketplace once listed, or clone this folder and add it as a local plugin).
-2. Set your key: `export BOTDOOR_API_KEY=bd_...` (create one at https://botdoor.co/keys), then restart Cursor.
-3. No key yet? Leave it unset. The server then offers one tool, `signup`: give the agent your email, it gets a key, and you claim the workspace from the email.
+2. Enter your key in the plugin's **Botdoor API key** setting (`BOTDOOR_API_KEY`; create one at https://botdoor.co/keys).
+3. No key yet? Leave it empty. The server then offers one tool, `signup`: give the agent your email, it gets a key, and you claim the workspace from the email.
 
 Manual setup without the plugin (`~/.cursor/mcp.json`):
 
@@ -30,7 +30,7 @@ Manual setup without the plugin (`~/.cursor/mcp.json`):
 | Path | Purpose |
 |---|---|
 | `.cursor-plugin/plugin.json` | Cursor plugin manifest |
-| `mcp.cursor.json` | Cursor MCP config (key from `BOTDOOR_API_KEY`) |
+| `mcp.cursor.json` | Cursor MCP config (key from the `BOTDOOR_API_KEY` plugin variable) |
 | `plugin.json`, `mcp.json` | OpenAI (ChatGPT / Codex) plugin package |
 | `skills/post-to-social/SKILL.md` | The skill |
 | `assets/logo.svg`, `assets/logo.png` | Logo (512 x 512) |

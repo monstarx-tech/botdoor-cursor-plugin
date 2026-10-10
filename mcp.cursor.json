@@ -3,7 +3,7 @@
     "botdoor": {
       "url": "https://botdoor.co/api/mcp",
       "headers": {
-        "Authorization": "Bearer ${env:BOTDOOR_API_KEY}"
+        "Authorization": "Bearer ${BOTDOOR_API_KEY}"
       }
     }
   }
